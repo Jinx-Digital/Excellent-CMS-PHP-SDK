@@ -1,0 +1,21 @@
+/* demo.php: tables of the API answers, light and dark */
+:root { --bg: #f6f7f8; --card: #fff; --text: #1f2328; --muted: #656d76; --line: #e3e6e8; --primary: #059669; --code: #f0f3f4; }
+@media (prefers-color-scheme: dark) { :root { --bg: #111315; --card: #1a1d20; --text: #e6e8ea; --muted: #9aa3ab; --line: #2b3035; --primary: #34d399; --code: #22262a; } }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
+main { max-width: 1100px; margin: 0 auto; padding: 32px 16px 48px; }
+header { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; }
+header svg { width: 40px; height: 40px; flex: none; }
+h1 { font-size: 22px; margin: 0; }
+header p { margin: 0; color: var(--muted); font-size: 14px; }
+section { background: var(--card); border: 1px solid var(--line); border-radius: 12px; margin-bottom: 20px; overflow: hidden; }
+section h2 { font-size: 16px; margin: 0; padding: 14px 18px 4px; }
+pre { margin: 0 18px 12px; padding: 8px 12px; background: var(--code); border-radius: 8px; overflow-x: auto; font-size: 12.5px; color: var(--muted); }
+.table { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th, td { text-align: left; padding: 8px 18px; border-top: 1px solid var(--line); vertical-align: top; }
+th { font-size: 12px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); font-weight: 600; }
+tbody tr:hover { background: var(--code); }
+.note { padding: 10px 18px 14px; color: var(--muted); font-size: 13px; border-top: 1px solid var(--line); }
+.error { background: #fde8e8; color: #9b1c1c; border-color: #f8b4b4; padding: 14px 18px; }
+footer { color: var(--muted); font-size: 13px; }

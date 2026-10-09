@@ -10,7 +10,7 @@ $text = is_array($code) ? (string)($code['code'] ?? '') : (string)$code;
 $file = $block['file'] ?: (is_array($code) ? ($code['file'] ?? null) : null);
 $language = is_array($code) ? (string)($code['language'] ?? '') : '';
 ?>
-<figure class="block code" id="block-<?= $e($block->key()) ?>" data-type="<?= $e($block->type()) ?> · <?= $e($block->key()) ?>">
+<figure class="block code" id="block-<?= $e($block->key()) ?>">
   <?php if ($file): ?><figcaption><?= $e($file) ?></figcaption><?php endif ?>
   <pre><code<?= '' !== $language && 'text' !== $language ? ' class="language-'.$e($language).'"' : '' ?>><?= $e($text) ?></code></pre>
 </figure>

@@ -41,7 +41,7 @@ with `url` and `admin_origin`, see `demo/config.php`; `config.*.php` are not in 
 `demo/page-builder.php` is a website from blocks - live at [demo.excellent.jinx-digital.com](https://demo.excellent.jinx-digital.com/).
 
 `demo/page-builder.php` shows the [page builder](#blocks-page-builder) of the CMS: it renders a landing page from blocks with one
-template per block type (`demo/blocks/*.php`), and `?outline=1` marks every block with its type and key. Use it as
+template per block type (`demo/blocks/*.php`). Use it as
 the preview address of the entity (`…/demo/page-builder.php?id={{id}}&token={{token}}`) to see drafts and working copies,
 and live editing: click a block in the preview to edit it.
 

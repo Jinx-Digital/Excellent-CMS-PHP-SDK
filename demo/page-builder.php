@@ -10,7 +10,6 @@ declare(strict_types=1);
  *     open demo/page-builder.php in the browser (e.g. MAMP)    or    php demo/page-builder.php
  *
  *     ?slug=home                  another landing page
- *     ?outline=1                  shows the blocks with their type and key
  *
  * It is also a preview page: set the preview address of the entity in the CMS (Schema › Settings) to
  *
@@ -131,8 +130,7 @@ if ('cli' === PHP_SAPI) {
     exit(0);
 }
 
-$outline = isset($_GET['outline']);
-$link = static fn(array $params): string => '?'.http_build_query(array_filter($params + ['outline' => $outline ? 1 : null, 'token' => $_GET['token'] ?? null], static fn($v): bool => null !== $v));
+$link = static fn(array $params): string => '?'.http_build_query(array_filter($params + ['token' => $_GET['token'] ?? null], static fn($v): bool => null !== $v));
 header('Content-Type: text/html; charset=utf-8');
 if ($cms->isPreview()) {
     header('Cache-Control: no-store');
@@ -144,119 +142,9 @@ if ($cms->isPreview()) {
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title><?= $e($page?->get('title') ?? 'Page builder') ?> – Excellent CMS SDK demo</title>
-  <style>
-    :root { --bg: #f6f7f8; --card: #fff; --text: #1f2328; --muted: #656d76; --line: #e3e6e8; --primary: #059669; --primary-dark: #047857; --soft: #ecfdf5; --code: #f0f3f4; }
-    @media (prefers-color-scheme: dark) { :root { --bg: #0e1012; --card: #171a1d; --text: #e6e8ea; --muted: #9aa3ab; --line: #2b3035; --primary: #34d399; --primary-dark: #10b981; --soft: #0f2a21; --code: #22262a; } }
-    * { box-sizing: border-box; }
-    body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.6 system-ui, -apple-system, "Segoe UI", sans-serif; }
-    a { color: var(--primary); }
-    code { background: var(--code); padding: .1em .35em; border-radius: 5px; font-size: .9em; }
-    .bar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; padding: 10px 16px; border-bottom: 1px solid var(--line); background: var(--card); font-size: 14px; }
-    .bar svg { width: 26px; height: 26px; flex: none; }
-    .bar strong { margin-right: auto; }
-    .bar nav { display: flex; flex-wrap: wrap; gap: 6px; }
-    .pill { padding: 3px 10px; border: 1px solid var(--line); border-radius: 999px; text-decoration: none; color: var(--text); }
-    .pill.active { border-color: var(--primary); color: var(--primary); }
-    .badge { padding: 2px 8px; border-radius: 999px; font-size: 12px; font-weight: 600; }
-    .badge.preview { background: #fef3c7; color: #92400e; }
-    .badge.live { background: var(--soft); color: var(--primary-dark); }
-    main { max-width: 960px; margin: 0 auto; padding: 24px 16px 64px; }
-    .block { position: relative; margin: 0 0 24px; border-radius: 16px; }
-    .hero { padding: 64px 32px; text-align: center; color: #fff; background: radial-gradient(circle at 20% 0%, #34d399 0, transparent 45%), linear-gradient(135deg, #065f46, #059669 60%, #10b981); }
-    .hero h1 { font-size: clamp(32px, 6vw, 52px); line-height: 1.1; margin: 0 0 16px; letter-spacing: -.02em; }
-    .hero .lead { font-size: 19px; opacity: .9; max-width: 560px; margin: 0 auto 28px; }
-    .hero img { display: block; max-width: 100%; margin: 0 auto 24px; border-radius: 12px; }
-    .button { display: inline-block; padding: 12px 22px; border-radius: 10px; background: #fff; color: #065f46; font-weight: 600; text-decoration: none; }
-    .button:hover { transform: translateY(-1px); }
-    .features { padding: 32px; background: var(--card); border: 1px solid var(--line); }
-    .features h2 { margin: 0 0 16px; }
-    .features ul { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
-    .features li { display: flex; gap: 10px; align-items: flex-start; padding: 12px 14px; background: var(--soft); border-radius: 10px; }
-    .check { color: var(--primary); font-weight: 700; }
-    .rich-text { padding: 8px 32px; font-size: 17px; }
-    .cta { padding: 40px 32px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; background: #111827; color: #fff; }
-    .cta h2 { margin: 0; font-size: 26px; }
-    .button--light { background: var(--primary); color: #fff; }
-    .missing { padding: 16px; border: 2px dashed #f59e0b; color: var(--muted); }
-    .block img { display: block; width: 100%; height: auto; border-radius: 12px; object-fit: cover; }
-    .button--primary { background: var(--primary); color: #fff; }
-    .link { font-weight: 600; text-decoration: none; }
-    .placeholder { aspect-ratio: 3 / 2; border-radius: 12px; background: var(--code); }
-    /* --media: width of the image (field "media_width", %) - empty: half */
-    .media-text { display: grid; grid-template-columns: minmax(0, var(--media, 1fr)) minmax(0, 1fr); gap: 32px; align-items: center; padding: 24px 0; }
-    .media-text--right { grid-template-columns: minmax(0, 1fr) minmax(0, var(--media, 1fr)); }
-    .media-text--right .media-text__media { order: 2; }
-    .media-text h2 { margin: 0 0 12px; font-size: 28px; }
-    .columns h2, .gallery h2, .faq h2 { margin: 0 0 16px; }
-    .columns__grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 24px; }
-    .column { grid-column: span var(--span); padding: 20px; background: var(--card); border: 1px solid var(--line); border-radius: 12px; }
-    .column > .block { margin-bottom: 16px; }
-    .column > .block:last-child { margin-bottom: 0; }
-    .column h3, .column h4 { margin: 0 0 4px; }
-    .column .rich-text { padding: 0; font-size: 16px; }
-    .column .image--content, .column .image--wide { max-width: none; margin: 0; }
-    .column .quote { padding: 20px 24px; } .column .quote blockquote { font-size: 19px; }
-    .column .stats { padding: 16px; } .column .stat strong { font-size: 32px; }
-    .image--content { max-width: 680px; margin-inline: auto; }
-    .image--full { margin-inline: calc(50% - 50vw); border-radius: 0; }
-    .image--full img { border-radius: 0; }
-    figcaption { margin-top: 8px; color: var(--muted); font-size: 14px; text-align: center; }
-    .gallery__grid { display: grid; grid-template-columns: repeat(var(--per-row), minmax(0, 1fr)); gap: 12px; }
-    .gallery__grid a { display: block; cursor: zoom-in; }
-    .lightbox { max-width: min(92vw, 1400px); padding: 0; border: 0; border-radius: 12px; background: #111; }
-    .lightbox::backdrop { background: rgb(0 0 0 / .8); }
-    .lightbox img { display: block; max-width: 100%; max-height: 86vh; margin: 0 auto; }
-    .lightbox button { position: absolute; top: 50%; translate: 0 -50%; border: 0; border-radius: 999px; width: 40px; height: 40px; background: rgb(255 255 255 / .85); font-size: 20px; cursor: pointer; }
-    .lightbox [data-prev] { left: 8px; } .lightbox [data-next] { right: 8px; }
-    .lightbox [data-close] { top: 28px; right: 8px; translate: none; }
-    .excellent-form { display: grid; gap: 16px; max-width: 720px; }
-    .excellent-form .form-fields { display: flex; flex-wrap: wrap; gap: 16px; }
-    .excellent-form .form-fields > *, .form-column > *, .form-fieldset > * { flex: 1 1 100%; }
-    .excellent-form .is-half { flex: 1 1 calc(50% - 8px); min-width: 200px; }
-    .form-columns { display: grid; grid-template-columns: repeat(var(--columns), minmax(0, 1fr)); gap: 16px; }
-    .form-column, .form-fieldset { display: flex; flex-wrap: wrap; gap: 16px; align-content: start; }
-    .form-fieldset { margin: 0; padding: 16px; border: 1px solid var(--line, #e5e7eb); border-radius: 12px; }
-    .form-fieldset legend { padding: 0 6px; font-weight: 600; }
-    .form-field { display: grid; gap: 6px; }
-    .form-label { font-weight: 600; font-size: 15px; }
-    .form-required, .form-error, .form-errors { color: #dc2626; }
-    .form-field input:not([type=checkbox]):not([type=radio]), .form-field select, .form-field textarea { width: 100%; box-sizing: border-box; padding: 10px 12px; border: 1px solid #d1d5db; border-radius: 10px; font: inherit; background: #fff; }
-    .form-field.has-error input, .form-field.has-error select, .form-field.has-error textarea { border-color: #dc2626; }
-    .form-choices { display: flex; flex-wrap: wrap; gap: 8px 18px; }
-    .form-help { color: var(--muted, #6b7280); }
-    .form-actions button { padding: 12px 22px; border: 0; border-radius: 10px; background: var(--primary); color: #fff; font: inherit; font-weight: 600; cursor: pointer; }
-    .form-success { padding: 16px 20px; border-radius: 12px; background: var(--soft); font-weight: 600; }
-    @media (max-width: 640px) { .form-columns { grid-template-columns: minmax(0, 1fr); } }
-    .quote { margin-inline: 0; padding: 32px 40px; border-left: 4px solid var(--primary); background: var(--soft); }
-    .quote blockquote { margin: 0; font-size: 24px; line-height: 1.4; font-weight: 500; }
-    .quote figcaption { text-align: left; margin-top: 16px; }
-    .video__frame { position: relative; aspect-ratio: 16 / 9; border-radius: 12px; overflow: hidden; background: #000; }
-    .video__frame iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
-    .faq details { margin: 0 0 8px; padding: 14px 18px; background: var(--card); border: 1px solid var(--line); border-radius: 10px; }
-    .faq details[open] summary { margin-bottom: 8px; }
-    .stats { display: flex; flex-wrap: wrap; justify-content: space-around; gap: 24px; padding: 32px; background: var(--card); border: 1px solid var(--line); }
-    .stat { text-align: center; }
-    .stat strong { display: block; font-size: 44px; line-height: 1.1; color: var(--primary); }
-    .stat span { color: var(--muted); }
-    .code { margin-inline: 0; border-radius: 12px; overflow: hidden; background: #0d1117; color: #e6edf3; }
-    .code figcaption { margin: 0; padding: 8px 16px; text-align: left; color: #8b949e; border-bottom: 1px solid #30363d; }
-    .code pre { margin: 0; padding: 16px; background: none; border-radius: 0; }
-    .code code { background: none; padding: 0; }
-    .spacer--small { height: 8px; } .spacer--medium { height: 32px; } .spacer--large { height: 72px; }
-    .spacer hr { border: 0; border-top: 1px solid var(--line); margin: 16px 0; }
-    @media (max-width: 720px) {
-      .media-text, .media-text--right { grid-template-columns: 1fr; } .media-text--right .media-text__media { order: 0; }
-      .column { grid-column: span 12; } .gallery__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    }
-    .outline .block { outline: 2px dashed var(--primary); outline-offset: 4px; }
-    .outline .block::before { content: attr(data-type); position: absolute; top: -12px; left: 12px; z-index: 1; padding: 1px 8px; border-radius: 6px; background: var(--primary); color: #fff; font: 600 12px/1.6 ui-monospace, monospace; }
-    .error { padding: 16px; border-radius: 12px; background: #fde8e8; color: #9b1c1c; }
-    details { margin-top: 40px; background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 12px 16px; font-size: 14px; }
-    summary { cursor: pointer; font-weight: 600; }
-    pre { overflow-x: auto; background: var(--code); padding: 12px; border-radius: 8px; font-size: 12.5px; }
-  </style>
+  <link rel="stylesheet" href="assets/page-builder.css">
 </head>
-<body class="<?= $outline ? 'outline' : '' ?>">
+<body>
   <div class="bar">
     <svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="7" fill="#059669"/><path d="M5.5 26V17l4-4.4v8.9H14V7.7L16 5.5l2 2.2v13.8h4.5v-8.9l4 4.4v9z" fill="#fff"/></svg>
     <strong>Page builder demo</strong>
@@ -265,7 +153,6 @@ if ($cms->isPreview()) {
       <?php foreach ($pages as $item): ?>
         <a class="pill <?= $item->id() === $page?->id() ? 'active' : '' ?>" href="<?= $e($link(['slug' => $item['slug']])) ?>"><?= $e($item['title']) ?></a>
       <?php endforeach ?>
-      <a class="pill" href="<?= $e($link(['slug' => $page?->get('slug'), 'outline' => $outline ? null : 1])) ?>"><?= $outline ? 'Hide blocks' : 'Show blocks' ?></a>
     </nav>
   </div>
   <main>
@@ -293,30 +180,7 @@ PHP) ?></code></pre>
   </main>
   <!-- Galleries with "click: lightbox": the image enlarged in a dialog, arrows (and ← →) to the others of the gallery -->
   <dialog class="lightbox" aria-label="Image"><img alt=""><button type="button" data-prev aria-label="Previous">‹</button><button type="button" data-next aria-label="Next">›</button><button type="button" data-close aria-label="Close">×</button></dialog>
-  <script>
-  (() => {
-    const dialog = document.querySelector('.lightbox')
-    let links = [], index = 0
-    const show = (i) => { index = (i + links.length) % links.length; dialog.querySelector('img').src = links[index].href }
-    document.addEventListener('click', (event) => {
-      const link = event.target.closest('a[data-lightbox]')
-      if (!link || event.defaultPrevented) return
-      event.preventDefault()
-      links = [...document.querySelectorAll(`a[data-lightbox="${CSS.escape(link.dataset.lightbox)}"]`)]
-      show(links.indexOf(link))
-      dialog.showModal()
-    })
-    dialog.addEventListener('click', (event) => {
-      if (event.target.closest('[data-prev]')) show(index - 1)
-      else if (event.target.closest('[data-next]')) show(index + 1)
-      else if (event.target.closest('[data-close]') || event.target === dialog) dialog.close()
-    })
-    dialog.addEventListener('keydown', (event) => {
-      if (event.key === 'ArrowLeft') show(index - 1)
-      if (event.key === 'ArrowRight') show(index + 1)
-    })
-  })()
-  </script>
+  <script src="assets/lightbox.js" defer></script>
   <?php if ($cms->isPreview()): ?><?= LiveEdit::script($adminOrigin) ?><?php endif ?>
 </body>
 </html>

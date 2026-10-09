@@ -4,7 +4,7 @@
 /** @var callable(?string): string $markdown */
 /** @var callable(?ExcellentCms\Sdk\MediaFile, int): string $img */
 ?>
-<section class="block faq" id="block-<?= $e($block->key()) ?>" data-type="<?= $e($block->type()) ?> · <?= $e($block->key()) ?>">
+<section class="block faq" id="block-<?= $e($block->key()) ?>">
   <?php if ($block['title']): ?><h2><?= $e($block['title']) ?></h2><?php endif ?>
   <?php foreach (array_filter((array)$block['items'], 'is_array') as $item): ?>
     <details>

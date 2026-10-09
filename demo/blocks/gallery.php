@@ -7,7 +7,7 @@
 // "lightbox" (enlarged on the page - see the dialog in page-builder.php) or "file" (the image itself)
 $click = in_array($block['click'], ['lightbox', 'file'], true) ? $block['click'] : null;
 ?>
-<section class="block gallery" style="--per-row: <?= (int)($block['per_row'] ?: 3) ?>" id="block-<?= $e($block->key()) ?>" data-type="<?= $e($block->type()) ?> · <?= $e($block->key()) ?>">
+<section class="block gallery" style="--per-row: <?= (int)($block['per_row'] ?: 3) ?>" id="block-<?= $e($block->key()) ?>">
   <?php if ($block['title']): ?><h2><?= $e($block['title']) ?></h2><?php endif ?>
   <div class="gallery__grid">
     <?php foreach ($block->files('images') as $file): ?>

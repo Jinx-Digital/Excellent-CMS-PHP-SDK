@@ -2,7 +2,7 @@
 /** @var ExcellentCms\Sdk\Block $block */
 /** @var callable(mixed): string $e */
 ?>
-<section class="block hero" id="block-<?= $e($block->key()) ?>" data-type="<?= $e($block->type()) ?> · <?= $e($block->key()) ?>">
+<section class="block hero" id="block-<?= $e($block->key()) ?>">
   <h1><?= $e($block['title']) ?></h1>
   <?php if ($block['text']): ?><p class="lead"><?= $e($block['text']) ?></p><?php endif ?>
   <?php if ($image = $block->media('image')): ?><img src="<?= $e($image->url) ?>" alt=""><?php endif ?>

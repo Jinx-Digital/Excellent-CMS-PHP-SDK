@@ -4,4 +4,4 @@
 /** @var callable(?string): string $markdown */
 /** @var callable(?ExcellentCms\Sdk\MediaFile, int): string $img */
 ?>
-<div class="block spacer spacer--<?= $e($block['size'] ?: 'medium') ?>" id="block-<?= $e($block->key()) ?>" data-type="<?= $e($block->type()) ?> · <?= $e($block->key()) ?>"><?php if ('line' === $block['size']): ?><hr><?php endif ?></div>
+<div class="block spacer spacer--<?= $e($block['size'] ?: 'medium') ?>" id="block-<?= $e($block->key()) ?>"><?php if ('line' === $block['size']): ?><hr><?php endif ?></div>

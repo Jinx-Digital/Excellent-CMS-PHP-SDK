@@ -11,7 +11,7 @@ $embed = match (true) {
     default => null,
 };
 ?>
-<figure class="block video" id="block-<?= $e($block->key()) ?>" data-type="<?= $e($block->type()) ?> · <?= $e($block->key()) ?>">
+<figure class="block video" id="block-<?= $e($block->key()) ?>">
   <?php if ($embed): ?>
     <div class="video__frame"><iframe src="<?= $e($embed) ?>" title="<?= $e($block['caption'] ?: 'Video') ?>" loading="lazy" allowfullscreen></iframe></div>
   <?php else: ?>
