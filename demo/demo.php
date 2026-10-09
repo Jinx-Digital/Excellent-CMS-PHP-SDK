@@ -3,15 +3,14 @@
 declare(strict_types=1);
 
 /**
- * Reads a few things from the live demo of Excellent CMS (public entities of the project
- * "bibliothek") and shows them as tables - in the browser as a page, on the command line as text:
+ * Reads a few things from Excellent CMS (public entities of the project "bibliothek" of the demo data) and
+ * shows them as tables - in the browser as a page, on the command line as text:
  *
  *     composer install
  *     php demo/demo.php                      or open demo/demo.php in the browser (e.g. MAMP)
  *
- * Another CMS:      EXCELLENT_URL=http://localhost:8090 EXCELLENT_PROJECT=main php demo/demo.php
- * With an API client (protected entities such as books):
- *                   EXCELLENT_CLIENT_ID=… EXCELLENT_CLIENT_SECRET=… php demo/demo.php
+ * By default the local CMS (http://localhost:8090) - the live demo or another CMS: demo/config.php.
+ * With an API client (protected entities such as books): client_id and client_secret in demo/config.local.php.
  */
 
 use ExcellentCms\Sdk\Auth\ClientCredentials;
@@ -22,10 +21,11 @@ use ExcellentCms\Sdk\Record;
 
 require dirname(__DIR__).'/vendor/autoload.php';
 
-$url = getenv('EXCELLENT_URL') ?: 'https://admin.demo.excellent.jinx-digital.com';
-$project = getenv('EXCELLENT_PROJECT') ?: 'bibliothek';
-$clientId = getenv('EXCELLENT_CLIENT_ID');
-$secret = getenv('EXCELLENT_CLIENT_SECRET');
+$config = require __DIR__.'/config.php';
+$url = $config['url'];
+$project = $config['library_project'];
+$clientId = $config['client_id'];
+$secret = $config['client_secret'];
 
 $cms = new Client($url, $project, $clientId && $secret ? new ClientCredentials($clientId, $secret) : null);
 

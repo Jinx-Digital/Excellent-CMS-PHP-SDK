@@ -18,10 +18,10 @@ declare(strict_types=1);
  *
  * and "Preview" in the record form shows drafts and working copies here. Live editing (LiveEdit):
  * click a block in the preview to edit it in the CMS - the page renders the unsaved blocks as you type.
- * EXCELLENT_ADMIN_ORIGIN: address of the admin app (default: the Nuxt dev server http://localhost:3090).
+ * admin_origin (demo/config.php): address of the admin app (default: the Nuxt dev server http://localhost:3090).
  *
- * Another CMS: EXCELLENT_URL=https://admin.demo.excellent.jinx-digital.com (EXCELLENT_PROJECT, EXCELLENT_ENTITY) - so runs
- * the live demo demo.excellent.jinx-digital.com, with EXCELLENT_ADMIN_ORIGIN=https://admin.demo.excellent.jinx-digital.com
+ * Another CMS: demo/config.php - the live demo demo.excellent.jinx-digital.com has a demo/config.local.php
+ * with url and admin_origin https://admin.demo.excellent.jinx-digital.com
  */
 
 use ExcellentCms\Sdk\Block;
@@ -35,11 +35,13 @@ use ExcellentCms\Sdk\Record;
 
 require dirname(__DIR__).'/vendor/autoload.php';
 
-$url = getenv('EXCELLENT_URL') ?: 'http://localhost:8090';
-$project = getenv('EXCELLENT_PROJECT') ?: 'docs';
-$entity = getenv('EXCELLENT_ENTITY') ?: 'landing_pages';
-// The admin app that may send unsaved changes (live preview) - by default the CMS itself
-$adminOrigin = getenv('EXCELLENT_ADMIN_ORIGIN') ?: 'http://localhost:3090';
+// Local CMS by default; the live demo or another CMS: demo/config.php (config.local.php on the server)
+$config = require __DIR__.'/config.php';
+$url = $config['url'];
+$project = $config['pages_project'];
+$entity = $config['pages_entity'];
+// The admin app that may send unsaved changes (live preview)
+$adminOrigin = $config['admin_origin'];
 
 $e = static fn(mixed $value): string => htmlspecialchars((string)$value, ENT_QUOTES);
 

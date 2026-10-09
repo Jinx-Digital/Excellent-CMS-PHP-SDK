@@ -33,10 +33,14 @@ foreach ($books as $book) {
 }
 ```
 
-Try it against the [live demo](https://admin.demo.excellent.jinx-digital.com/): run `composer install`, then `php demo/demo.php`, or open `demo/demo.php` in the browser.
+Run `composer install`, then `php demo/demo.php`, or open `demo/demo.php` in the browser. The demos read from the local CMS
+(`http://localhost:8090`, admin app `http://localhost:3090`) by default; another CMS - e.g. the
+[live demo](https://admin.demo.excellent.jinx-digital.com/) - goes into `demo/config.local.php` (an array
+with `url` and `admin_origin`, see `demo/config.php`; `config.*.php` are not in git) or the environment variables of
+`demo/config.php`.
 `demo/page-builder.php` is a website from blocks - live at [demo.excellent.jinx-digital.com](https://demo.excellent.jinx-digital.com/).
 
-`demo/page-builder.php` shows the [page builder](#blocks-page-builder) of a local CMS (`http://localhost:8090`, change with `EXCELLENT_URL`): it renders a landing page from blocks with one
+`demo/page-builder.php` shows the [page builder](#blocks-page-builder) of the CMS: it renders a landing page from blocks with one
 template per block type (`demo/blocks/*.php`), and `?outline=1` marks every block with its type and key. Use it as
 the preview address of the entity (`…/demo/page-builder.php?id={{id}}&token={{token}}`) to see drafts and working copies,
 and live editing: click a block in the preview to edit it.
