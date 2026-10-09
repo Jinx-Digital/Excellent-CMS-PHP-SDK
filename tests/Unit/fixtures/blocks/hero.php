@@ -1,0 +1,1 @@
+<section id="<?= htmlspecialchars($block->key()) ?>"><h1><?= htmlspecialchars((string)$block['title']) ?></h1><?php if ($image = $block->media('image')): ?><img src="<?= htmlspecialchars($image->url) ?>" alt=""><?php endif ?><small><?= htmlspecialchars((string)$site) ?>#<?= $index ?></small></section>

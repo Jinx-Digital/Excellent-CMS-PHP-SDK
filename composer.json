@@ -1,0 +1,57 @@
+{
+    "name": "lugat/excellent-cms-php-sdk",
+    "description": "PHP client for the headless content API of Excellent CMS: typed queries, filters on references, OAuth client credentials and writing records.",
+    "type": "library",
+    "license": "MIT",
+    "keywords": ["excellent-cms", "headless-cms", "cms", "api-client", "sdk", "psr-18"],
+    "homepage": "https://github.com/Jinx-Digital/Excellent-CMS-PHP-SDK",
+    "support": {
+        "issues": "https://github.com/Jinx-Digital/Excellent-CMS-PHP-SDK/issues",
+        "source": "https://github.com/Jinx-Digital/Excellent-CMS-PHP-SDK",
+        "docs": "https://github.com/Jinx-Digital/Excellent-CMS/blob/master/docs/content-api.md"
+    },
+    "require": {
+        "php": "^8.2",
+        "ext-json": "*",
+        "php-http/discovery": "^1.19",
+        "psr/http-client": "^1.0",
+        "psr/http-client-implementation": "^1.0",
+        "psr/http-factory": "^1.0",
+        "psr/http-factory-implementation": "^1.0",
+        "psr/http-message": "^1.1 || ^2.0",
+        "psr/simple-cache": "^2.0 || ^3.0"
+    },
+    "require-dev": {
+        "guzzlehttp/guzzle": "^7.8",
+        "phpstan/phpstan": "^2.1",
+        "phpunit/phpunit": "^11.5",
+        "twig/twig": "^3.10"
+    },
+    "suggest": {
+        "guzzlehttp/guzzle": "A PSR-18 HTTP client, found automatically",
+        "symfony/http-client": "A PSR-18 HTTP client (with nyholm/psr7), found automatically",
+        "twig/twig": "Blocks in Twig templates (Twig\\BlocksExtension)"
+    },
+    "autoload": {
+        "psr-4": {
+            "ExcellentCms\\Sdk\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "ExcellentCms\\Sdk\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test": "phpunit --testsuite unit",
+        "test:integration": "phpunit --testsuite integration",
+        "analyse": "phpstan analyse"
+    },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "php-http/discovery": true
+        }
+    },
+    "minimum-stability": "stable"
+}
