@@ -1,5 +1,5 @@
 {
-    "name": "lugat/excellent-cms-php-sdk",
+    "name": "jinx-digital/excellent-cms-php-sdk",
     "description": "PHP client for the headless content API of Excellent CMS: typed queries, filters on references, OAuth client credentials and writing records.",
     "type": "library",
     "license": "MIT",

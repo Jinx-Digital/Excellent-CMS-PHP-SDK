@@ -66,11 +66,31 @@ final class Query
      * where('title', 'Emma') - equals
      * where('year', '>=', 1800) - with one of =, !=, >, >=, <, <=, like, in (or eq, ne, gt …)
      * where('author.name', 'like', 'aus') - fields of referenced records
+     * where(['name' => 'Emma', 'year' => 1815]) - several fields at once, each one equal (all of them must fit);
+     *   null: empty, a list: one of the values - ['deleted_at' => null, 'genre' => ['novel', 'drama']]
      *
      * Values: strings, numbers, booleans, DateTimeInterface (sent as ISO 8601), null (empty).
+     *
+     * @param string|array<array-key, mixed> $field fields and values: the keys must be names of fields (checked)
      */
-    public function where(string $field, mixed $operator, mixed $value = null): self
+    public function where(string|array $field, mixed $operator = null, mixed $value = null): self
     {
+        if (is_array($field)) {
+            if (func_num_args() > 1) {
+                throw new InvalidArgumentException('where([…]) takes the fields and their values only - for operators use where($field, $operator, $value).');
+            }
+            $query = $this;
+            foreach ($field as $name => $wanted) {
+                if (!is_string($name) || '' === $name) {
+                    throw new InvalidArgumentException('where([…]) needs the names of the fields as keys: [\'name\' => \'Emma\'].');
+                }
+                $query = is_array($wanted) && array_is_list($wanted) ? $query->whereIn($name, $wanted) : $query->where($name, $wanted);
+            }
+            return $query;
+        }
+        if (func_num_args() < 2) {
+            throw new InvalidArgumentException(sprintf('where("%s") needs a value: where("%1$s", $value) or where("%1$s", $operator, $value).', $field));
+        }
         if (2 === func_num_args()) {
             [$operator, $value] = ['eq', $operator];
         }

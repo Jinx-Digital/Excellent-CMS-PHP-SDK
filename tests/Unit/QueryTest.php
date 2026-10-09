@@ -48,6 +48,51 @@ final class QueryTest extends TestCase
         ], $query->toParameters());
     }
 
+    public function testSeveralFieldsAtOnce(): void
+    {
+        $query = $this->query()->where([
+            'name' => 'asd',
+            'age' => 30,
+            'available' => true,
+            'deleted_at' => null,
+            'genre' => ['novel', 'drama'],
+            'author.name' => 'Austen',
+        ])->where('year', '>', 1800);
+
+        $this->assertSame([
+            'filter' => [
+                'name' => ['eq' => 'asd'],
+                'age' => ['eq' => '30'],
+                'available' => ['eq' => 'true'],
+                'deleted_at' => ['null' => 'true'],
+                'genre' => ['in' => ['novel', 'drama']],
+                'author' => ['name' => ['eq' => 'Austen']],
+                'year' => ['gt' => '1800'],
+            ],
+        ], $query->toParameters());
+        // Directly on the entity too
+        $this->assertSame(['filter' => ['name' => ['eq' => 'asd']]], $this->client(new FakeHttpClient())->entity('books')->where(['name' => 'asd'])->toParameters());
+    }
+
+    public function testSeveralFieldsNeedNamesAndNoOperator(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->query()->where(['name' => 'asd'], '=');
+    }
+
+    public function testSeveralFieldsWithoutNames(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->query()->where(['asd', 30]);
+    }
+
+    public function testFieldWithoutValue(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('needs a value');
+        $this->query()->where('name');
+    }
+
     public function testOperatorAliasesAndShortcuts(): void
     {
         $this->assertSame(['filter' => ['a' => ['ne' => 'x']]], $this->query()->where('a', '!=', 'x')->toParameters());

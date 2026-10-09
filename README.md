@@ -54,8 +54,11 @@ and live editing: click a block in the preview to edit it.
 ## Installation
 
 ```bash
-composer require lugat/excellent-cms-php-sdk guzzlehttp/guzzle
+composer config repositories.excellent-cms-sdk vcs https://github.com/Jinx-Digital/Excellent-CMS-PHP-SDK
+composer require jinx-digital/excellent-cms-php-sdk guzzlehttp/guzzle
 ```
+
+The SDK comes from GitHub (not from Packagist) - the first command adds the repository to your `composer.json`.
 
 ## Connecting
 
@@ -128,6 +131,7 @@ $book->toArray();                            // the raw data
 
 ```php
 $books->where('title', 'Emma');                         // equals
+$books->where(['title' => 'Emma', 'year' => 1815]);     // several fields at once, each equal (null: empty, a list: one of them)
 $books->where('year', '>=', 1800);                      // =, !=, >, >=, <, <=, like, in (or eq, ne, gt, gte, lt, lte)
 $books->where('title', 'like', 'pride');                // contains, not case-sensitive
 $books->whereIn('language', ['en', 'de']);
@@ -414,23 +418,18 @@ $cms->plugin('forms')->post('submit/contact', ['email' => 'ada@example.com', 'me
 Blocks of plugins (e.g. the forms of the plugin "Forms") need no helper: their templates in the CMS render them (see
 [HTML of the CMS](#html-of-the-cms)).
 
-**SEO** (plugin "seo"): redirects of old addresses and the meta tags of a page from its field group SEO:
+The SDK has no code of its own for single plugins - what a plugin offers, its README describes, and `->plugin()` calls
+it. E.g. the redirect of an old address of the plugin "seo" (a `NotFoundException` when there is none):
 
 ```php
-use ExcellentCms\Sdk\Seo;
+use ExcellentCms\Sdk\Exception\NotFoundException;
 
-$seo = new Seo($cms);
-if ($redirect = $seo->redirect($_SERVER['REQUEST_URI'])) {   // e.g. before answering 404
-    http_response_code($redirect['status']);                 // 301, 302 or 410
-    if ($redirect['target']) header('Location: '.$redirect['target']);
-    exit;
+try {
+    $redirect = $cms->plugin('seo')->get('redirect', ['path' => $_SERVER['REQUEST_URI']]);   // {path, target, status}
+} catch (NotFoundException) {
+    $redirect = null;
 }
-
-// <title>, description, canonical, robots (noindex), Open Graph - the field group wins, the defaults fill the gaps
-echo Seo::meta($page['seo'], ['title' => $page['title'], 'description' => $page['summary'], 'url' => $url, 'site' => 'Example']);
 ```
-
-The sitemap comes from the CMS: `GET /api/v1/<project>/plugins/seo/sitemap.xml`.
 
 ## Errors
 
