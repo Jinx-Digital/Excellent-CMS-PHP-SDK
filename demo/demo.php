@@ -22,7 +22,7 @@ use ExcellentCms\Sdk\Record;
 
 require dirname(__DIR__).'/vendor/autoload.php';
 
-$url = getenv('EXCELLENT_URL') ?: 'https://demo.excellent.jinx-digital.com';
+$url = getenv('EXCELLENT_URL') ?: 'https://admin.demo.excellent.jinx-digital.com';
 $project = getenv('EXCELLENT_PROJECT') ?: 'bibliothek';
 $clientId = getenv('EXCELLENT_CLIENT_ID');
 $secret = getenv('EXCELLENT_CLIENT_SECRET');

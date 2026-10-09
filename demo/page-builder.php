@@ -20,7 +20,8 @@ declare(strict_types=1);
  * click a block in the preview to edit it in the CMS - the page renders the unsaved blocks as you type.
  * EXCELLENT_ADMIN_ORIGIN: address of the admin app (default: the Nuxt dev server http://localhost:3090).
  *
- * Another CMS: EXCELLENT_URL=https://demo.excellent.jinx-digital.com (EXCELLENT_PROJECT, EXCELLENT_ENTITY)
+ * Another CMS: EXCELLENT_URL=https://admin.demo.excellent.jinx-digital.com (EXCELLENT_PROJECT, EXCELLENT_ENTITY) - so runs
+ * the live demo demo.excellent.jinx-digital.com, with EXCELLENT_ADMIN_ORIGIN=https://admin.demo.excellent.jinx-digital.com
  */
 
 use ExcellentCms\Sdk\Block;

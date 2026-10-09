@@ -1,7 +1,7 @@
 # Excellent CMS PHP SDK
 
 PHP client for the headless content API of [Excellent CMS](https://github.com/Jinx-Digital/Excellent-CMS)
-([website](https://excellent.jinx-digital.com/), [live demo](https://demo.excellent.jinx-digital.com/)). It lets you:
+([website](https://excellent.jinx-digital.com/), [live demo](https://admin.demo.excellent.jinx-digital.com/)). It lets you:
 
 - Read records with a fluent, immutable query builder, including filters and sorting on fields of referenced records.
 - Page through lists lazily.
@@ -33,7 +33,8 @@ foreach ($books as $book) {
 }
 ```
 
-Try it against the [live demo](https://demo.excellent.jinx-digital.com/): run `composer install`, then `php demo/demo.php`, or open `demo/demo.php` in the browser.
+Try it against the [live demo](https://admin.demo.excellent.jinx-digital.com/): run `composer install`, then `php demo/demo.php`, or open `demo/demo.php` in the browser.
+`demo/page-builder.php` is a website from blocks - live at [demo.excellent.jinx-digital.com](https://demo.excellent.jinx-digital.com/).
 
 `demo/page-builder.php` shows the [page builder](#blocks-page-builder) of a local CMS (`http://localhost:8090`, change with `EXCELLENT_URL`): it renders a landing page from blocks with one
 template per block type (`demo/blocks/*.php`), and `?outline=1` marks every block with its type and key. Use it as
@@ -409,6 +410,24 @@ $cms->plugin('forms')->post('submit/contact', ['email' => 'ada@example.com', 'me
 Blocks of plugins (e.g. the forms of the plugin "Forms") need no helper: their templates in the CMS render them (see
 [HTML of the CMS](#html-of-the-cms)).
 
+**SEO** (plugin "seo"): redirects of old addresses and the meta tags of a page from its field group SEO:
+
+```php
+use ExcellentCms\Sdk\Seo;
+
+$seo = new Seo($cms);
+if ($redirect = $seo->redirect($_SERVER['REQUEST_URI'])) {   // e.g. before answering 404
+    http_response_code($redirect['status']);                 // 301, 302 or 410
+    if ($redirect['target']) header('Location: '.$redirect['target']);
+    exit;
+}
+
+// <title>, description, canonical, robots (noindex), Open Graph - the field group wins, the defaults fill the gaps
+echo Seo::meta($page['seo'], ['title' => $page['title'], 'description' => $page['summary'], 'url' => $url, 'site' => 'Example']);
+```
+
+The sitemap comes from the CMS: `GET /api/v1/<project>/plugins/seo/sitemap.xml`.
+
 ## Errors
 
 Every exception implements `ExcellentCms\Sdk\Exception\ExcellentException`.
@@ -445,7 +464,8 @@ composer test:integration
 - Excellent CMS: [github.com/Jinx-Digital/Excellent-CMS](https://github.com/Jinx-Digital/Excellent-CMS). The content API is documented
   in its README and on the page *API-Doku* in the admin app.
 - Website: [excellent.jinx-digital.com](https://excellent.jinx-digital.com/)
-- Live demo: [demo.excellent.jinx-digital.com](https://demo.excellent.jinx-digital.com/)
+- Live demo: [admin.demo.excellent.jinx-digital.com](https://admin.demo.excellent.jinx-digital.com/) (admin app and API),
+  [demo.excellent.jinx-digital.com](https://demo.excellent.jinx-digital.com/) (website with the page builder)
 
 ## License
 
