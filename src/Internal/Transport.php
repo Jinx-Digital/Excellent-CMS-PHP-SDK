@@ -28,6 +28,13 @@ final class Transport
     /** Preview token (Client::preview()): drafts and working copies instead of the live state */
     private ?string $previewToken = null;
 
+    /** Key and seconds of the cache of the CMS (Client::cache()) - sent with reading requests */
+    private ?string $cacheKey = null;
+    private ?int $cacheTtl = null;
+
+    /** "HIT" or "MISS" of the last answer, null: not cached */
+    private ?string $cacheStatus = null;
+
     /**
      * @param string $projectUrl e.g. https://cms.example.com/api/v1/bibliothek
      */
@@ -94,6 +101,7 @@ final class Transport
             $response = $this->send($method, $path, $query, $payload);
         }
         $this->rateLimit = self::rateLimit($response) ?? $this->rateLimit;
+        $this->cacheStatus = '' !== $response->getHeaderLine('X-Cache') ? $response->getHeaderLine('X-Cache') : null;
 
         $data = Http::json($response);
         if ($response->getStatusCode() >= 400 || false === ($data['success'] ?? true)) {
@@ -134,6 +142,19 @@ final class Transport
         return $this->previewToken;
     }
 
+    public function withCache(?string $key, ?int $ttl): self
+    {
+        $clone = clone $this;
+        $clone->cacheKey = $key;
+        $clone->cacheTtl = $ttl;
+        return $clone;
+    }
+
+    public function lastCacheStatus(): ?string
+    {
+        return $this->cacheStatus;
+    }
+
     public function lastRateLimit(): ?RateLimit
     {
         return $this->rateLimit;
@@ -157,6 +178,13 @@ final class Transport
         }
         if (null !== $this->previewToken) {
             $request = $request->withHeader('X-Preview-Token', $this->previewToken);
+        }
+        // Only reading requests are cached
+        if ('GET' === $method && null !== $this->cacheKey) {
+            $request = $request->withHeader('X-Cache-Key', $this->cacheKey);
+            if (null !== $this->cacheTtl) {
+                $request = $request->withHeader('X-Cache-TTL', (string)$this->cacheTtl);
+            }
         }
         if (null !== $payload) {
             $request = $request

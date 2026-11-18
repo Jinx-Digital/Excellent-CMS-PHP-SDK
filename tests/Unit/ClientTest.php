@@ -24,6 +24,38 @@ final class ClientTest extends TestCase
 {
     use ClientFactory;
 
+    public function testCacheKeyOfTheClient(): void
+    {
+        $http = (new FakeHttpClient())
+            ->json(['status' => 'success', 'data' => ['id' => 'n1']], 200, ['X-Cache' => 'MISS'])
+            ->json(['status' => 'success', 'data' => ['id' => 'n1']], 200, ['X-Cache' => 'HIT'])
+            ->success(['id' => 'n1'])
+            ->success(['deleted' => 3])
+            ->success(['deleted' => 7]);
+        $cms = $this->client($http);
+        $home = $cms->cache('start', 600);
+
+        // Reading requests send the key and the time; the answer says whether it came from the cache
+        $home->entity('news')->get('n1');
+        $this->assertSame(['start', '600'], [$http->last()->getHeaderLine('X-Cache-Key'), $http->last()->getHeaderLine('X-Cache-TTL')]);
+        $this->assertSame('MISS', $home->cacheStatus());
+        $home->entity('news')->get('n1');
+        $this->assertSame('HIT', $home->cacheStatus());
+        // The normal client stays as it is
+        $cms->entity('news')->get('n1');
+        $this->assertFalse($http->last()->hasHeader('X-Cache-Key'));
+        $this->assertNull($cms->cacheStatus());
+
+        // Removing: a key, or all answers of the client
+        $this->assertSame(3, $cms->flushCache('start'));
+        $this->assertSame(['DELETE', '/api/v1/bibliothek/cache/start'], [$http->last()->getMethod(), $http->last()->getUri()->getPath()]);
+        $this->assertSame(7, $cms->flushCache());
+        $this->assertSame('/api/v1/bibliothek/cache', $http->last()->getUri()->getPath());
+
+        $this->expectException(\ExcellentCms\Sdk\Exception\InvalidArgumentException::class);
+        $cms->cache('nö!');
+    }
+
     public function testListRequestAndPage(): void
     {
         $http = (new FakeHttpClient())->success(

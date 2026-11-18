@@ -81,6 +81,51 @@ final class Client
         return $clone;
     }
 
+    /**
+     * The same client with a key of its own for the cache of the CMS - when a cache rule of the entity lets the
+     * client choose (Administration › Cache). Answers are kept under the client and this key, for $ttl seconds
+     * (at most what the rule allows; null: the time of the rule):
+     *
+     *     $home = $cms->cache('start', 600);
+     *     $news = $home->entity('news')->query()->limit(5)->get();
+     *     // when the start page changes: $cms->flushCache('start');
+     *
+     * Only reading requests send it. Without a key (null) it is the normal client.
+     */
+    public function cache(?string $key, ?int $ttl = null): self
+    {
+        if (null !== $key && 1 !== preg_match('/^[A-Za-z0-9._:-]{1,100}$/', $key)) {
+            throw new Exception\InvalidArgumentException(sprintf('"%s" is no cache key: letters, digits, ".", "_", ":" and "-" (at most 100).', $key));
+        }
+        if (null !== $ttl && $ttl < 1) {
+            throw new Exception\InvalidArgumentException('The cache time is a number of seconds (1 or more).');
+        }
+        $clone = clone $this;
+        $clone->transport = $this->transport->withCache($key, null !== $key ? $ttl : null);
+        $clone->entities = [];
+        $clone->media = null;
+        return $clone;
+    }
+
+    /**
+     * Removes the answers the CMS keeps for this client: those of a key (see cache()), or all of them.
+     *
+     * @return int how many
+     */
+    public function flushCache(?string $key = null): int
+    {
+        $result = $this->transport->call('DELETE', null !== $key ? ['cache', $key] : ['cache']);
+        return (int)(is_array($result['data']) ? ($result['data']['deleted'] ?? 0) : 0);
+    }
+
+    /**
+     * Whether the last answer came from the cache of the CMS: "HIT", "MISS" - null when the entity is not cached.
+     */
+    public function cacheStatus(): ?string
+    {
+        return $this->transport->lastCacheStatus();
+    }
+
     public function isPreview(): bool
     {
         return null !== $this->transport->previewToken();

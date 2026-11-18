@@ -324,6 +324,23 @@ if ($cms->isPreview()) {
 - After blocks were swapped, `document` gets the event `excellent:rendered`, so the website can start its scripts again
   (animations, sliders …).
 
+## Cache
+
+The CMS can keep answers for a while (*Administration › Cache*, rules per entity). Every answer belongs to your client,
+and it is removed as soon as a record it shows changes. If the rule lets the client choose, give answers a key of your
+own - with a time (at most what the rule allows):
+
+```php
+$home = $cms->cache('start', 600);                      // key "start", 10 minutes
+$news = $home->entity('news')->query()->limit(5)->get();
+$home->cacheStatus();                                   // "HIT", "MISS" - null: not cached
+
+$cms->flushCache('start');                              // remove the answers of the key
+$cms->flushCache();                                     // all answers of this client
+```
+
+Only reading requests send the key. Without a rule that allows keys, the key is ignored and the rule's time applies.
+
 ## Writing
 
 The API client needs the permission to create, update or delete records of the entity.
